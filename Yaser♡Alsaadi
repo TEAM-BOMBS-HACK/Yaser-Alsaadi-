@@ -1,0 +1,151 @@
+--[[
+ 🔥 Iraqi Neon GUI v2.0
+ 👑 المطور: المجهول
+ 🎧 واجهة أنيقة + تأثيرات + صوت عند التفعيل
+ 💫 تعمل على دلتا وفلُكسس ومُعظم الإكزكيوتَرز
+]]
+
+local Players = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+local TS = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- 🔊 صوت التفعيل
+local clickSound = Instance.new("Sound", SoundService)
+clickSound.SoundId = "rbxassetid://9118827997" -- صوت ناعم
+clickSound.Volume = 1
+
+-- 🌀 إنشاء الواجهة
+local gui = Instance.new("ScreenGui")
+gui.Name = "IraqiNeonGUI"
+gui.Parent = playerGui
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- ✨ الإطار الرئيسي
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 160)
+frame.Position = UDim2.new(0.5, -150, 0.5, -80)
+frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+frame.Active = true
+frame.Draggable = true
+
+-- 🌈 خلفية متدرجة متحركة
+local gradient = Instance.new("UIGradient", frame)
+gradient.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(255,0,100)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0,255,255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(255,255,0))
+}
+gradient.Rotation = 0
+
+-- أنيميشن مستمر للخلفية
+task.spawn(function()
+	while task.wait(0.03) do
+		gradient.Rotation = (gradient.Rotation + 1) % 360
+	end
+end)
+
+-- 🌟 تزيين
+local stroke = Instance.new("UIStroke", frame)
+stroke.Thickness = 2
+stroke.Color = Color3.fromRGB(255,255,0)
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 15)
+
+-- 🏷️ العنوان
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundTransparency = 1
+title.Text = "⚡ Yaser♡Alsaadi_dev_noor⚡"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 24
+title.TextColor3 = Color3.fromRGB(0,255,0)
+title.TextStrokeTransparency = 0
+title.TextStrokeColor3 = Color3.fromRGB(255,0,0)
+
+-- ❌ زر الإغلاق
+local closeBtn = Instance.new("TextButton", frame)
+closeBtn.Size = UDim2.new(0, 35, 0, 35)
+closeBtn.Position = UDim2.new(1, -45, 0, 5)
+closeBtn.Text = "X"
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 20
+closeBtn.BackgroundColor3 = Color3.fromRGB(255,0,0)
+closeBtn.TextColor3 = Color3.new(1,1,1)
+closeBtn.AutoButtonColor = false
+
+local closeCorner = Instance.new("UICorner", closeBtn)
+closeCorner.CornerRadius = UDim.new(0, 8)
+
+closeBtn.MouseEnter:Connect(function()
+	TS:Create(closeBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(200, 0, 0)}):Play()
+end)
+closeBtn.MouseLeave:Connect(function()
+	TS:Create(closeBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 0, 0)}):Play()
+end)
+closeBtn.MouseButton1Click:Connect(function()
+	clickSound:Play()
+	gui:Destroy()
+end)
+
+-- 🎮 زر التشغيل
+local autoPlay = false
+local autoBtn = Instance.new("TextButton", frame)
+autoBtn.Size = UDim2.new(0, 220, 0, 60)
+autoBtn.Position = UDim2.new(0.5, -110, 0.5, -10)
+autoBtn.Text = "تشغيل تلقائي"
+autoBtn.Font = Enum.Font.GothamBold
+autoBtn.TextSize = 22
+autoBtn.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
+autoBtn.TextColor3 = Color3.new(1,1,1)
+autoBtn.AutoButtonColor = false
+
+local btnCorner = Instance.new("UICorner", autoBtn)
+btnCorner.CornerRadius = UDim.new(0, 12)
+
+local glow = Instance.new("UIStroke", autoBtn)
+glow.Thickness = 2
+glow.Color = Color3.fromRGB(255,255,0)
+glow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- ✳️ تشغيل التلقائي
+autoBtn.MouseButton1Click:Connect(function()
+	clickSound:Play()
+	autoPlay = not autoPlay
+
+	if autoPlay then
+		autoBtn.Text = "⛔ إيقاف التلقائي"
+		TS:Create(autoBtn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(0,255,100)}):Play()
+	else
+		autoBtn.Text = "✅ تشغيل تلقائي"
+		TS:Create(autoBtn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(255,140,0)}):Play()
+	end
+
+	if autoPlay then
+		task.spawn(function()
+			while autoPlay do
+				for i = 1, 10 do
+					local args = {{EmoteEvent = "Emote"..i}}
+					local remoteFolder = RS:WaitForChild("Manager"):WaitForChild("Remotes"):WaitForChild("RemoteEvents")
+					local emoteRemote = remoteFolder:WaitForChild("Emote")
+					emoteRemote:FireServer(unpack(args))
+					task.wait(0.03)
+					if not autoPlay then break end
+				end
+			end
+		end)
+	end
+end)
+
+-- ⚡ حركة دخول الواجهة
+frame.Position = UDim2.new(0.5, -150, 1.2, 0)
+TS:Create(frame, TweenInfo.new(0.8, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+	Position = UDim2.new(0.5, -150, 0.5, -80)
+}):Play()
